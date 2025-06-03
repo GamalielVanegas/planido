@@ -6,13 +6,23 @@
         <field name="model">hr.payslip.sv</field>
         <field name="arch" type="xml">
             <form string="Planilla">
-
                 <header>
+                    <button name="action_marcar_finalizado"
+                            string="Finalizar"
+                            type="object"
+                            class="btn-success"
+                            attrs="{'invisible': [('state','=','done')]}"/>
+
                     <button name="action_calcular_planilla"
                             type="object"
                             string="Calcular Planilla"
                             class="btn-primary"
                             attrs="{'invisible': [('state','=','done')]}"/>
+                    <button name="action_exportar_spu"
+                            type="object"
+                            string="Exportar SPU"
+                            class="btn-secondary"
+                            attrs="{'invisible': [('state', '!=', 'done')]}"/>
                 </header>
 
                 <sheet>
@@ -94,7 +104,7 @@
     <!-- Menú -->
     <menuitem id="menu_hr_sv_root" name="Planilla SV" sequence="10"/>
 
-    <!-- Acción (debe ir ANTES del menuitem que la usa) -->
+    <!-- Acción -->
     <record id="action_hr_payslip_sv" model="ir.actions.act_window">
         <field name="name">Planillas</field>
         <field name="res_model">hr.payslip.sv</field>

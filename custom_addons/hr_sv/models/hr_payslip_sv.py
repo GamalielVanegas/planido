@@ -1,4 +1,8 @@
 from odoo import models, fields, api
+from datetime import datetime
+import io
+import base64
+import csv
 
 class HrPayslipSV(models.Model):
     _name = 'hr.payslip.sv'
@@ -20,6 +24,9 @@ class HrPayslipSV(models.Model):
         ('done', 'Finalizado'),
     ], string='Estado', default='draft')
 
+    archivo_spu = fields.Binary("Archivo SPU", readonly=True)
+    nombre_archivo_spu = fields.Char("Nombre Archivo", readonly=True)
+
     @api.depends('date_start', 'date_end')
     def _compute_name(self):
         for rec in self:
@@ -30,8 +37,6 @@ class HrPayslipSV(models.Model):
 
     def action_calcular_planilla(self):
         self.ensure_one()
-
-        # Borrar líneas existentes para no duplicar
         self.line_ids.unlink()
 
         empleados = self.env['hr.employee'].search([
@@ -45,6 +50,67 @@ class HrPayslipSV(models.Model):
                     'payslip_id': self.id,
                     'employee_id': emp.id,
                     'wage': contrato.wage,
-                    # Puedes inicializar adelantos, prestamos, horas extras, etc. en 0
+                    # Inicializar deducciones u otros campos si es necesario
                 })
+
+    def action_marcar_finalizado(self):
+        for rec in self:
+            rec.state = 'done'
+
+    def action_exportar_spu(self):
+        salida = io.StringIO()
+        writer = csv.writer(salida)
+
+        for linea in self.line_ids:
+            emp = linea.employee_id
+            contrato = emp.contract_id
+            if not contrato:
+                continue
+
+            nombres = emp.name.split()
+            primer_nombre = nombres[0] if len(nombres) > 0 else ''
+            segundo_nombre = nombres[1] if len(nombres) > 1 else ''
+            apellidos = emp.name.split(' ')
+            primer_apellido = apellidos[-1] if len(apellidos) >= 1 else ''
+            segundo_apellido = apellidos[-2] if len(apellidos) >= 2 else ''
+
+            writer.writerow([
+                '038931211',                             # DUI/NIT del Empleador
+                '789897899',                             # Número patronal ISSS
+                self.date_end.strftime('%m%Y'),          # Período Mes-Año (MMYYYY)
+                '456',                                   # Correlativo Centro Trabajo ISSS
+                emp.dui.replace('-', ''),                # Número de Documento (DUI sin guión)
+                '01',                                    # Tipo de Documento
+                (emp.nup or '').zfill(9),                # Número de Afiliación ISSS
+                'COF',                                   # Institución Previsional
+                primer_nombre,
+                segundo_nombre,
+                segundo_apellido,                        # Primer Apellido
+                primer_apellido,                         # Segundo Apellido
+                '',                                      # Apellido de Casada
+                f"{linea.wage:.2f}",                     # Salario
+                "0.00",                                  # Pago Adicional
+                "0.00",                                  # Monto de Vacación
+                "30",                                    # Días trabajados
+                "160",                                   # Horas trabajadas
+                "0",                                     # Días de Vacación
+                "00",                                    # Código Observación 01
+                "00",                                    # Código Observación 02
+            ])
+
+        datos_csv = salida.getvalue().encode('utf-8')
+        salida.close()
+
+        nombre = f'planilla_spu_{self.date_end.strftime("%Y%m")}.csv'
+
+        self.write({
+            'archivo_spu': base64.b64encode(datos_csv),
+            'nombre_archivo_spu': nombre,
+        })
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content?model=hr.payslip.sv&id={self.id}&field=archivo_spu&filename_field=nombre_archivo_spu&download=true',
+            'target': 'self',
+        }
 
