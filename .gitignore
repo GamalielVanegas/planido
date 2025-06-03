@@ -1,0 +1,13 @@
+*.pyc
+__pycache__/
+*.log
+*.swp
+*.xlsx
+*.csv
+*.zip
+*.bak
+.env
+*.egg-info/
+*.db
+venv/
+odoo/
