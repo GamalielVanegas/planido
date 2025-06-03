@@ -50,7 +50,6 @@ class HrPayslipSV(models.Model):
                     'payslip_id': self.id,
                     'employee_id': emp.id,
                     'wage': contrato.wage,
-                    # Inicializar deducciones u otros campos si es necesario
                 })
 
     def action_marcar_finalizado(self):
@@ -60,6 +59,31 @@ class HrPayslipSV(models.Model):
     def action_exportar_spu(self):
         salida = io.StringIO()
         writer = csv.writer(salida)
+
+        # ENCABEZADOS
+        writer.writerow([
+            'DUI/NIT del Empleador',
+            'Número patronal ISSS',
+            'Período Mes-Año',
+            'Correlativo Centro de Trabajo ISSS',
+            'Número de Documento',
+            'Tipo de Documento',
+            'Número de Afiliación ISSS',
+            'Institución Previsional',
+            'Primer Nombre',
+            'Segundo Nombre',
+            'Primer Apellido',
+            'Segundo Apellido',
+            'Apellido de Casada',
+            'Salario',
+            'Pago Adicional',
+            'Monto de Vacación',
+            'Días',
+            'Horas',
+            'Días de Vacación',
+            'Código de Observación 01',
+            'Código de Observación 02'
+        ])
 
         for linea in self.line_ids:
             emp = linea.employee_id
@@ -79,9 +103,9 @@ class HrPayslipSV(models.Model):
                 '789897899',                             # Número patronal ISSS
                 self.date_end.strftime('%m%Y'),          # Período Mes-Año (MMYYYY)
                 '456',                                   # Correlativo Centro Trabajo ISSS
-                emp.dui.replace('-', ''),                # Número de Documento (DUI sin guión)
+                emp.dui.replace('-', '') if emp.dui else '',  # DUI sin guión
                 '01',                                    # Tipo de Documento
-                (emp.nup or '').zfill(9),                # Número de Afiliación ISSS
+                (emp.nup or '').zfill(9),                # Número Afiliación ISSS
                 'COF',                                   # Institución Previsional
                 primer_nombre,
                 segundo_nombre,
@@ -90,7 +114,7 @@ class HrPayslipSV(models.Model):
                 '',                                      # Apellido de Casada
                 f"{linea.wage:.2f}",                     # Salario
                 "0.00",                                  # Pago Adicional
-                "0.00",                                  # Monto de Vacación
+                "0.00",                                  # Monto Vacación
                 "30",                                    # Días trabajados
                 "160",                                   # Horas trabajadas
                 "0",                                     # Días de Vacación
