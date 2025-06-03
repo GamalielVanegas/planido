@@ -10,6 +10,7 @@
         'security/ir.model.access.csv',
         'views/hr_employee_views.xml',
         'views/hr_payslip_sv_views.xml',
+        'views/hr_payslip_sv_line_views.xml',
     ],
     'installable': True,
     'application': True,

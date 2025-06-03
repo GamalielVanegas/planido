@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_payslip_sv_line_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.sv.line.tree</field>
+        <field name="model">hr.payslip.sv.line</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="employee_id"/>
+                <field name="wage"/>
+                <field name="total_ingresos"/>
+                <field name="total_descuentos"/>
+                <field name="neto_pagar"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hr_payslip_sv_line_form" model="ir.ui.view">
+        <field name="name">hr.payslip.sv.line.form</field>
+        <field name="model">hr.payslip.sv.line</field>
+        <field name="arch" type="xml">
+            <form string="Línea de Planilla">
+                <sheet>
+                    <group string="Datos del Empleado">
+                        <field name="employee_id"/>
+                        <field name="wage"/>
+                        <field name="salario_diario"/>
+                        <field name="salario_hora"/>
+                    </group>
+
+                    <group string="Ingresos del Periodo">
+                        <field name="dias_laborados"/>
+                        <field name="horas_extras_diurnas"/>
+                        <field name="horas_extras_nocturnas"/>
+                        <field name="horas_extras_festivos"/>
+                        <field name="bonificaciones"/>
+                        <field name="comisiones"/>
+                        <field name="viaticos"/>
+                        <field name="otros_ingresos"/>
+                        <field name="total_ingresos" readonly="1"/>
+                    </group>
+
+                    <group string="Deducciones">
+                        <field name="isss"/>
+                        <field name="afp"/>
+                        <field name="renta"/>
+                        <field name="embargos"/>
+                        <field name="anticipos"/>
+                        <field name="otras_deducciones"/>
+                        <field name="total_descuentos" readonly="1"/>
+                    </group>
+
+                    <group string="Resultado Final">
+                        <field name="neto_pagar" readonly="1"/>
+                    </group>
+
+                    <group string="Complementarios">
+                        <field name="horas_trabajadas"/>
+                        <field name="vacaciones_acumuladas"/>
+                        <field name="aguinaldo_acumulado"/>
+                        <field name="indemnizacion"/>
+                        <field name="bono_vacacional"/>
+                        <field name="dias_incapacidad"/>
+                        <field name="dias_licencia"/>
+                    </group>
+
+                    <group string="Control de Pago">
+                        <field name="estado_pago"/>
+                        <field name="forma_pago"/>
+                        <field name="observaciones"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
+

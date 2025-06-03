@@ -94,7 +94,7 @@ class HrPayslipSV(models.Model):
             nombres = emp.name.split()
             primer_nombre = nombres[0] if len(nombres) > 0 else ''
             segundo_nombre = nombres[1] if len(nombres) > 1 else ''
-            apellidos = emp.name.split(' ')
+            apellidos = emp.name.split()
             primer_apellido = apellidos[-1] if len(apellidos) >= 1 else ''
             segundo_apellido = apellidos[-2] if len(apellidos) >= 2 else ''
 
